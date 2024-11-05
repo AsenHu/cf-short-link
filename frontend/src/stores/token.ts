@@ -2,11 +2,14 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useTokenStore = defineStore(
-  'counter',
+  'token',
   () => {
     const token = ref('')
+    const updateToken = (newToken: string) => {
+      token.value = newToken
+    }
 
-    return { token }
+    return { token, updateToken }
   },
   {
     persist: true,

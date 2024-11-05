@@ -3,7 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import router from './router'
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons-vue'
 
-import { nav } from '@/utils/nav'
+import { useNavStore } from '@/stores/nav'
 
 defineOptions({
   name: 'AppComponent',
@@ -11,6 +11,7 @@ defineOptions({
 
 const selectedKeys = ref<string[]>()
 const collapsed = ref<boolean>(false)
+const navStore = useNavStore()
 
 onMounted(() => {
   watch(
@@ -31,7 +32,7 @@ onMounted(() => {
       </div>
       <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
         <a-menu-item
-          v-for="item in nav"
+          v-for="item in navStore.navList"
           :key="item.key"
           @click="
             router.push({

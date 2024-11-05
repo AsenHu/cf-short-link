@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { useTokenStore } from '@/stores/token'
 
-const base_url = import.meta.env.VITE_HTTP_BASE_URL
+const base_url = import.meta.env.VITE_BASE_URL
 
 const tokenStore = useTokenStore()
 
@@ -17,8 +17,7 @@ const axiosInstance = axios.create({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Response<T = any> = {
   ok: boolean
-  error?: string
-  message?: string
+  msg: string
   data: T
 }
 

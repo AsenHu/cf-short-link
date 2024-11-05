@@ -4,8 +4,8 @@ export interface shortLinkAdd {
   number?: boolean
   capital?: boolean
   lowercase?: boolean
-  expiration?: number
-  expirationTtl?: number
+  expiration?: number | null
+  expirationTtl?: number | null
 }
 
 // url	string	必填：需要缩短的长链接	无
