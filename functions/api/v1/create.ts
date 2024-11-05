@@ -20,9 +20,7 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     console.log('得到 token', token);
     if (!token || !tokens.includes(token.replace('Bearer ', ''))) {
         console.log('鉴权失败');
-        return new Response(JSON.stringify({ ok: false, msg: "Forbidden" }), {
-            status: 403
-        });
+        return genResponse({ ok: false, msg: "Forbidden" }, 403);
     }
     console.log('鉴权通过');
 
@@ -32,9 +30,7 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     // 检查 URL 是否合法
     if (!data.url || !/^https?:\/\//.test(data.url)) {
         console.log('URL 不合法');
-        return new Response(JSON.stringify({ ok: false, msg: "Invalid URL" }), {
-            status: 400
-        });
+        return genResponse({ ok: false, msg: "Invalid URL" }, 400);
     }
     console.log('URL 合法');
     // 规范化数据
@@ -44,9 +40,7 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     data.lowercase = data.lowercase ?? true;
     // 检查 expiration 和 expirationTtl 是否同时存在
     if (data.expiration && data.expirationTtl) {
-        return new Response(JSON.stringify({ ok: false, msg: "Provide either expiration or expirationTtl, not both" }), {
-            status: 400
-        });
+        return genResponse({ ok: false, msg: "Provide either expiration or expirationTtl, not both" }, 400);
     }
     // 设置默认值
     if (!data.expiration && !data.expirationTtl) {
@@ -54,9 +48,7 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     }
     // 检查 expirationTtl 是否小于 60
     if (data.expirationTtl && data.expirationTtl < 60) {
-        return new Response(JSON.stringify({ ok: false, msg: "expirationTtl must be at least 60 seconds" }), {
-            status: 400
-        });
+        return genResponse({ ok: false, msg: "expirationTtl must be at least 60 seconds" }, 400);
     }
 
     // 生成合法的随机字符串
@@ -98,13 +90,15 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     const domain = data.lowercase === false && data.capital === true ? 'B0.BY' : 'b0.by';
     const shortUrl = `${domain}/${shortLink}`;
 
-    return new Response(JSON.stringify({
-        ok: true,
-        msg: "Good",
-        data: {
-            short: shortUrl
+    return genResponse({ ok: true, msg: "Good", data: { short: shortUrl } }, 200);
+}
+
+function genResponse(context: { ok: boolean, msg: string, data?: { short: string } }, status: number) {
+    return new Response(JSON.stringify(context), {
+        status: status,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json'
         }
-    }), {
-        status: 200
     });
 }
