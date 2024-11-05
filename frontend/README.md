@@ -29,6 +29,18 @@ yarn dev
 ### Type-Check, Compile and Minify for Production
 
 ```sh
+cp ./env ./env.local
+```
+
+Edit `env.local`
+
+```sh
+VITE_BASE_URL=https://b0.by/api/v1
+```
+
+Build
+
+```sh
 yarn build
 ```
 
