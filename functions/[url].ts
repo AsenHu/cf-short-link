@@ -4,6 +4,7 @@ interface Env {
 
 export const onRequestGet = async (context: { request: Request, env: Env }) => {
     const url = new URL(context.request.url).pathname.slice(1);
+    console.log(url);
 
     // 检查前缀是否是 p
     let prefix = url.slice(0, 1).toLowerCase();
