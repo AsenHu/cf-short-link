@@ -17,20 +17,26 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     // 鉴权
     const token = context.request.headers.get('Authorization');
     const tokens: string[] = JSON.parse(context.env.tokens);
+    console.log('得到 token', token);
     if (!token || !tokens.includes(token.replace('Bearer ', ''))) {
+        console.log('鉴权失败');
         return new Response(JSON.stringify({ ok: false, msg: "Forbidden" }), {
             status: 403
         });
     }
+    console.log('鉴权通过');
 
     // 规范用户输入
     const data: Data = await context.request.json();
+    console.log('得到数据', data);
     // 检查 URL 是否合法
     if (!data.url || !/^https?:\/\//.test(data.url)) {
+        console.log('URL 不合法');
         return new Response(JSON.stringify({ ok: false, msg: "Invalid URL" }), {
             status: 400
         });
     }
+    console.log('URL 合法');
     // 规范化数据
     data.length = data.length ?? 6;
     data.number = data.number ?? true;
