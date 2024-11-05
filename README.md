@@ -47,6 +47,8 @@ POST /api/v1/create
 
 当 `expiration` 和 `expirationTtl` 同时未指定时，`expirationTtl` 值为 2592000（30 天）
 
+`expiration` 和 `expirationTtl` 不能同时有值
+
 `expirationTtl` 不得小于 60
 
 `url` 字段不得省略协议（http:// 或 https://）
@@ -89,11 +91,16 @@ POST /api/v1/create
 ```json
 {
     "ok": false,
-    "msg": "Bad Request: Invalid option field"
+    "msg": ""
 }
 ```
 
 请求中包含无效的选项字段。
+
+`msg` 可能的报错有这些。
+  - Invalid URL
+  - Provide either expiration or expirationTtl, not both
+  - expirationTtl must be at least 60 seconds
 
 429 响应
 

@@ -1,5 +1,5 @@
 interface Env {
-    TOKEN: string;
+    tokens: string[];
     kv: KVNamespace;
 }
 
@@ -14,146 +14,90 @@ interface Data {
 }
 
 export const onRequestPost = async (context: { request: Request, env: Env }) => {
-    const request = context.request;
-    const env = context.env;
-
-    // Check if the request has a valid token
-    if (request.headers.get('Authorization') || '' != env.TOKEN) {
-        return new Response(JSON.stringify({
-            ok: false,
-            error: "Forbidden"
-        }), {
-            status: 403,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+    // 鉴权
+    const token = context.request.headers.get('Authorization');
+    if (!token || !context.env.tokens.includes(token.replace('Bearer ', ''))) {
+        return new Response(JSON.stringify({ ok: false, msg: "Forbidden" }), {
+            status: 403
         });
     }
 
-    // Check if the request has a valid JSON body
-    const data: Data = await request.json();
-    if (!data) {
-        return new Response(JSON.stringify({
-            ok: false,
-            error: "Bad Request",
-            message: "Invalid option field"
-        }), {
-            status: 400,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-    }
-
-    // Check for invalid option field in the request data
-    const validOptions = ['url', 'length', 'number', 'capital', 'lowercase', 'expiration', 'expirationTtl'];
-    const invalidOptions = Object.keys(data).filter(key => !validOptions.includes(key));
-
-    if (invalidOptions.length > 0) {
-        return new Response(JSON.stringify({
-            ok: false,
-            error: "Bad Request",
-            message: "Invalid option field"
-        }), {
-            status: 400,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-    }
-
-    // Validate required fields and default values
+    // 规范用户输入
+    const data: Data = await context.request.json();
+    // 检查 URL 是否合法
     if (!data.url || !/^https?:\/\//.test(data.url)) {
-        return new Response(JSON.stringify({
-            ok: false,
-            error: "Bad Request",
-            message: "The 'url' field is required and must include the protocol (http:// or https://)"
-        }), {
-            status: 400,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        return new Response(JSON.stringify({ ok: false, msg: "Invalid URL" }), {
+            status: 400
         });
     }
-
-    data.length = data.length || 6;
-    data.number = data.number !== undefined ? data.number : true;
-    data.capital = data.capital !== undefined ? data.capital : true;
-    data.lowercase = data.lowercase !== undefined ? data.lowercase : true;
-
+    // 规范化数据
+    data.length = data.length ?? 6;
+    data.number = data.number ?? true;
+    data.capital = data.capital ?? true;
+    data.lowercase = data.lowercase ?? true;
+    // 检查 expiration 和 expirationTtl 是否同时存在
+    if (data.expiration && data.expirationTtl) {
+        return new Response(JSON.stringify({ ok: false, msg: "Provide either expiration or expirationTtl, not both" }), {
+            status: 400
+        });
+    }
+    // 设置默认值
     if (!data.expiration && !data.expirationTtl) {
-        data.expirationTtl = 2592000; // 30 days
+        data.expirationTtl = 2592000; // 30 天
     }
-
+    // 检查 expirationTtl 是否小于 60
     if (data.expirationTtl && data.expirationTtl < 60) {
-        return new Response(JSON.stringify({
-            ok: false,
-            error: "Bad Request",
-            message: "'expirationTtl' must be at least 60 seconds"
-        }), {
-            status: 400,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        return new Response(JSON.stringify({ ok: false, msg: "expirationTtl must be at least 60 seconds" }), {
+            status: 400
         });
     }
 
-    // Create the short link
-    let characters = '';
-    if (data.lowercase) characters += 'abcdefghijklmnopqrstuvwxyz';
-    if (data.capital) characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    if (data.number) characters += '0123456789';
-
+    // 生成合法的随机字符串
+    let caracteres = '';
+    if (data.number) caracteres += '0123456789';
+    if (data.capital) caracteres += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (data.lowercase) caracteres += 'abcdefghijklmnopqrstuvwxyz';
     let shortLink = '';
-    let attempts = 0;
-
-    while (attempts < 3) {
-        shortLink = '';
-
-        for (let i = 0; i < (data.length || 6); i++) {
-            shortLink += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-
-        let prefix = shortLink.substring(0, 1);
-        if (['P', 'p'].includes(prefix)) {
-            attempts++;
+    while (true) {
+        shortLink += caracteres[Math.floor(Math.random() * caracteres.length)];
+        // 检查是否达到指定长度
+        if (shortLink.length < data.length) continue;
+        // 检查前缀是否合法
+        let prefix = shortLink.slice(0, 1).toLowerCase();
+        if (prefix === 'p') {
+            shortLink = '';
             continue;
         }
-
-        prefix = shortLink.substring(0, 2);
-        if (['AV', 'BV', 'YT', 'av', 'bv', 'yt'].includes(prefix)) {
-            attempts++;
+        prefix = shortLink.slice(0, 2).toLowerCase();
+        if (prefix === 'av' || prefix === 'bv' || prefix === 'cv' || prefix === 'yt') {
+            shortLink = '';
             continue;
         }
-
-        const existingValue = await env.kv.get(shortLink, 'text');
-        if (!existingValue) {
-            if (data.expiration) {
-                await env.kv.put(shortLink, data.url, {
-                    "expiration": data.expiration
-                });
-            } else {
-                await env.kv.put(shortLink, data.url, {
-                    "expirationTtl": data.expirationTtl
-                });
-            }
-
-            // If lowercase is false and capital is true, convert the domain to uppercase
-            const domain = (data.lowercase === false && data.capital === true) ? 'B0.BY/' : 'b0.by/';
-            shortLink = domain + shortLink;
-            break;
-        }
-        attempts++;
+        // 检查是否已存在
+        if (await context.env.kv.get(shortLink)) continue;
+        break;
     }
+
+    // 存储数据
+    // 判断是否设置了过期时间
+    if (data.expiration) {
+        await context.env.kv.put(shortLink, data.url, { expiration: data.expiration });
+    }
+    if (data.expirationTtl) {
+        await context.env.kv.put(shortLink, data.url, { expirationTtl: data.expirationTtl });
+    }
+
+    // 返回结果
+    const domain = data.lowercase === false && data.capital === true ? 'B0.BY' : 'b0.by';
+    const shortUrl = `${domain}/${shortLink}`;
 
     return new Response(JSON.stringify({
         ok: true,
-        shortLink: shortLink
-    }), {
-        status: 200,
-        headers: {
-            'Content-Type': 'application/json'
+        msg: "Good",
+        data: {
+            short: shortUrl
         }
+    }), {
+        status: 200
     });
-
 }
