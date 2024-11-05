@@ -1,5 +1,5 @@
 interface Env {
-    tokens: string[];
+    tokens: string;
     kv: KVNamespace;
 }
 
@@ -16,7 +16,8 @@ interface Data {
 export const onRequestPost = async (context: { request: Request, env: Env }) => {
     // 鉴权
     const token = context.request.headers.get('Authorization');
-    if (!token || !context.env.tokens.includes(token.replace('Bearer ', ''))) {
+    const tokens: string[] = JSON.parse(context.env.tokens);
+    if (!token || !tokens.includes(token.replace('Bearer ', ''))) {
         return new Response(JSON.stringify({ ok: false, msg: "Forbidden" }), {
             status: 403
         });
