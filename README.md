@@ -82,7 +82,7 @@
 
 ### 获取短链接的长连接
 
-GET /api/v1/get?q=<short>
+GET /api/v1/get?q=short
 
 **请求参数**
 
