@@ -25,7 +25,7 @@ export const onRequestPut = async (context: { request: Request, env: Env }) => {
     const data: Data = await context.request.json();
     console.log('得到数据', data);
     // 检查 URL 是否合法
-    if (!data.url || !/^https?:\/\//.test(data.url)) {
+    if (data.url && !/^https?:\/\//.test(data.url)) {
         console.log('URL 不合法');
         return genResponse({ ok: false, msg: "Invalid URL" }, 400);
     }
@@ -38,6 +38,10 @@ export const onRequestPut = async (context: { request: Request, env: Env }) => {
     // 检查 expiration 和 expirationTtl 是否同时存在
     if (data.expiration && data.expirationTtl) {
         return genResponse({ ok: false, msg: "Provide either expiration or expirationTtl, not both" }, 400);
+    }
+    // 检查 expiration 是否小于当前时间
+    if (data.expiration && data.expiration < Date.now()) {
+        return genResponse({ ok: false, msg: "expiration must be greater than the current time" }, 400);
     }
     // 设置默认值
     if (!data.expiration && !data.expirationTtl) {
