@@ -61,6 +61,7 @@
 |Provide q|`q` 没有值|
 |Invalid JSON|你传的不是 JSON，但应该传 JSON|
 |expiration must be greater than the current time|你来自过去|
+|length must be less than 512|你没事吧|
 
 ---
 

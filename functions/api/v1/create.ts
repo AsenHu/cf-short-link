@@ -61,6 +61,10 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     if (data.expirationTtl && data.expirationTtl < 60) {
         return genResponse({ ok: false, msg: "expirationTtl must be at least 60 seconds" }, 400);
     }
+    // 检查 length 是否大于 512
+    if (data.length > 512) {
+        return genResponse({ ok: false, msg: "length must be less than 512" }, 400);
+    }
 
     // 生成合法的随机字符串
     let caracteres = '';
