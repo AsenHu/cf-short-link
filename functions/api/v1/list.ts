@@ -42,7 +42,7 @@ export const onRequestGet = async (context: { request: Request, env: Env }) => {
     // 筛选 keys
     let keys = result.keys;
     if (query) {
-        keys = keys.filter(key => key.metadata && (key.metadata as string).includes(query));
+        keys = keys.filter(key => key.metadata && String(key.metadata).includes(query));
     }
 
     // 生成返回数据
