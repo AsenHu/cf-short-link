@@ -2,6 +2,8 @@
 
 ## API
 
+### 请求头
+
 请求通常包含
 
 |请求头|值|
@@ -15,66 +17,40 @@
 
 ### 通用响应
 
-200 响应
-
 |名字|类型|描述|是否存在|
 |:-|:-|:-|:-|
 |ok|boolean|请求是否成功|总是|
 |msg|string|请求相关信息|总是|
 |data|string|请求成功时的响应|不一定|
 
+200 响应
+
+请求成功
+
 403 响应
 
 `Authorization` 请求头有误或无权限。
 
-```json
-{
-    "ok": false,
-    "msg": "Forbidden"
-}
-```
-
-|名字|类型|描述|是否存在|
-|:-|:-|:-|:-|
-|ok|boolean|请求是否成功|总是|
-|msg|string|请求相关信息|总是|
-
 400 响应
-
-```json
-{
-    "ok": false,
-    "msg": ""
-}
-```
 
 请求中包含无效的选项字段。
 
-`msg` 可能的报错有这些。
-  - Invalid URL
-  - Provide either expiration or expirationTtl, not both
-  - expirationTtl must be at least 60 seconds
-
-|名字|类型|描述|是否存在|
-|:-|:-|:-|:-|
-|ok|boolean|请求是否成功|总是|
-|msg|string|请求相关信息|总是|
-
 429 响应
-
-```json
-{
-    "ok": false,
-    "msg": "Rate limit exceeded"
-}
-```
 
 触发了速率限制，具体的响应可能由 cloudflare 提供。
 
-|名字|类型|描述|是否存在|
-|:-|:-|:-|:-|
-|ok|boolean|请求是否成功|总是|
-|msg|string|请求相关信息|总是|
+### msg 的内容
+
+|名字|描述|
+|:-|:-|
+|Rate limit exceeded|触发了速率限制|
+|Invalid URL|无效的 URL|
+|Provide either expiration or expirationTtl, not both|提供 `expiration` 或 `expirationTtl`，但不能同时提供|
+|expirationTtl must be at least 60 seconds|`expirationTtl` 必须至少为 60 秒|
+|Forbidden|禁止访问|
+|Good|请求成功|
+|Updated|短链接已更新|
+|Deleted|短链接已删除|
 
 ---
 
@@ -88,11 +64,11 @@ GET /api/v1/get?q=short
 
 |名字|类型|描述|默认值|
 |:-|:-|:-|:-|
-|short|string|必填：需要获取长链接的短链接|无|
+|q|string|必填：需要获取长链接的短链接|无|
 
 该 API 不会检查 `Authorization`
 
-该 API 建议不携带 `Content-Type`
+该 API 可以不用携带 `Content-Type`
 
 **响应示例**
 
@@ -110,19 +86,20 @@ GET /api/v1/get?q=short
 
 |名字|类型|描述|
 |:-|:-|:-|
-|ok|boolean|请求是否成功|
-|msg|string|请求相关信息|
 |data.url|string|长链接|
 
 ### 列出短链接
 
-GET /api/v1/list
+GET /api/v1/list?q=nekos.chat&c=nextCursor
 
 **请求参数**
 
-无
+|名字|类型|描述|默认值|
+|:-|:-|:-|:-|
+|q|string|可选：长链接中包含的查询字符串|无|
+|c|string|可选：分页游标|无|
 
-该 API 建议不携带 `Content-Type`
+分页游标的值由上一次请求 list 的 `data.cursor` 提供，用于获取下一页的结果。
 
 **响应示例**
 
@@ -132,28 +109,50 @@ GET /api/v1/list
 {
     "ok": true,
     "msg": "Good",
-    "data": [
-        {
-            "short": "123Abc",
-            "url": "http://www.reallylong.link",
-            "expiration": 123456
-        },
-        {
-            "short": "456Def",
-            "url": "http://www.anotherlong.link",
-            "expiration": 654321
-        }
-    ]
+    "data": {
+        "cursor": "nextCursor",
+        "list_complete": false,
+        "links": [
+            {
+                "short": {
+                    "key": "123Abc",
+                    "noHttps": "b0.by/123Abc",
+                    "full": "https://b0.by/123Abc"
+                },
+                "url": "http://www.reallylong.link",
+                "expiration": 123456
+            },
+            {
+                "short": {
+                    "key": "456Def",
+                    "noHttps": "b0.by/456Def",
+                    "full": "https://b0.by/456Def"
+                },
+                "url": "http://www.anotherlong.link",
+                "expiration": 654321
+            }
+        ]
+    }
 }
 ```
 
 |名字|类型|描述|
 |:-|:-|:-|
-|ok|boolean|请求是否成功|
-|msg|string|请求相关信息|
-|data[].short|string|短链接|
-|data[].url|string|长链接|
-|data[].expiration|number|过期时间戳|
+|data.cursor|string|分页游标|
+|data.list_complete|boolean|列表是否完整|
+|data.links[].short.key|string|短链接键|
+|data.links[].short.noHttps|string|不含协议头的短链接|
+|data.links[].short.full|string|完整短链接|
+|data.links[].url|string|长链接|
+|data.links[].expiration|number|过期时间戳|
+
+当长链接大于等于 1024 个字符（ACSII），`data.links[].url` 将不存在。
+
+当设置了查询字符串时，`links` 可能是空数组。
+
+当 `list_complete` 为 `true` 时，`cursor` 不存在。
+
+`links` 数组单次最多返回 1000 条，但无论是不是最后一页，返回的内容都可能少于 1000 条。
 
 ### 创建短链接
 
@@ -200,7 +199,7 @@ POST /api/v1/create
 ```json
 {
     "ok": true,
-    "msg": "Good"
+    "msg": "Good",
     "data": {
         "short": "b0.by/123Abc"
     }
@@ -209,8 +208,6 @@ POST /api/v1/create
 
 |名字|类型|描述|
 |:-|:-|:-|
-|ok|boolean|请求是否成功|
-|msg|string|请求相关信息|
 |data.short|string|生成的短链接|
 
 当 `lowercase` 为 `false` 并且 `capital` 为 `true` 时，返回的域名也会大写。（以便生成的 QR 码使用数字字母模式，而不是二进制模式）
@@ -243,17 +240,7 @@ PUT /api/v1/update
 
 200 响应
 
-```json
-{
-    "ok": true,
-    "msg": "Updated"
-}
-```
-
-|名字|类型|描述|
-|:-|:-|:-|
-|ok|boolean|请求是否成功|
-|msg|string|请求相关信息|
+只有默认响应的内容
 
 ### 删除短链接
 
@@ -275,14 +262,4 @@ DELETE /api/v1/delete
 
 200 响应
 
-```json
-{
-    "ok": true,
-    "msg": "Deleted"
-}
-```
-
-|名字|类型|描述|
-|:-|:-|:-|
-|ok|boolean|请求是否成功|
-|msg|string|请求相关信息|
+只有默认响应的内容
