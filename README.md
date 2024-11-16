@@ -1,5 +1,20 @@
 # CF_Short_Link
 
+## 部署指南
+
+1. Fork 本项目
+2. 去 Cloudflare Pages 创建一个项目，把你 Fork 的项目设置为存储库
+3. 添加环境变量，并部署
+
+环境变量如下
+
+|名称|描述|例子|
+|:-|:-|:-|
+|domain|你的域名，全小写，不要携带协议头|b0.by|
+|tokens|是一个数组，里面包含你允许的 token|["TheTokenHere","iQv1qzkLLrjFdVfThxUMn76Tfu9EAnkXgo9E07F8iZx"]|
+
+tokens 不建议用太奇怪的字符，长度建议 43 位大小写字母数字（因为这样刚好是 128 bit 凑个整）
+
 ## API
 
 ### 请求头
