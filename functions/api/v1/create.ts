@@ -49,6 +49,10 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     if (data.expiration && data.expirationTtl) {
         return genResponse({ ok: false, msg: "Provide either expiration or expirationTtl, not both" }, 400);
     }
+    // 检查 expiration 是否小于当前时间
+    if (data.expiration && data.expiration < Date.now()) {
+        return genResponse({ ok: false, msg: "expiration must be greater than the current time" }, 400);
+    }
     // 设置默认值
     if (!data.expiration && !data.expirationTtl) {
         data.expirationTtl = 2592000; // 30 天
