@@ -7,6 +7,11 @@ export const onRequestGet = async (context: { request: Request, env: Env }) => {
     const q = new URL(context.request.url).searchParams.get('q');
     console.log(q);
 
+    // 检查 q 是否存在
+    if (!q) {
+        return genResponse({ ok: false, msg: "Provide q" }, 400);
+    }
+
     // 检查前缀是否是 p
     let prefix = q?.slice(0, 1).toLowerCase();
     if (prefix === 'p') {
