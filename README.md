@@ -27,13 +27,17 @@
 
 请求成功
 
+400 响应
+
+请求中包含无效的选项字段。
+
 403 响应
 
 `Authorization` 请求头有误或无权限。
 
-400 响应
+404 响应
 
-请求中包含无效的选项字段。
+没有此短链接
 
 429 响应
 
@@ -51,6 +55,9 @@
 |Good|请求成功|
 |Updated|短链接已更新|
 |Deleted|短链接已删除|
+|Not Found|短链接不存在|
+|Provide either url, expiration or expirationTtl|URL, expiration 和 expirationTtl 都不存在|
+|Provide short|缺少 `short` 字段|
 
 ---
 
@@ -146,7 +153,7 @@ GET /api/v1/list?q=nekos.chat&c=nextCursor
 |data.links[].url|string|长链接|
 |data.links[].expiration|number|过期时间戳|
 
-当长链接大于等于 1024 个字符（ACSII），`data.links[].url` 将不存在。
+当长链接大于等于 1022 个字符（ACSII），`data.links[].url` 将不存在。
 
 当设置了查询字符串时，`links` 可能是空数组。
 
@@ -235,6 +242,14 @@ PUT /api/v1/update
 |expirationTtl|number|可选：新的存活时间（秒）|无|
 
 `url` `expiration` `expirationTtl` 至少包含一项。
+
+当 `expiration` 和 `expirationTtl` 同时未指定时，`expirationTtl` 值为 2592000（30 天）
+
+`expiration` 和 `expirationTtl` 不能同时有值
+
+`expirationTtl` 不得小于 60
+
+`url` 字段不得省略协议（http:// 或 https://）
 
 **响应示例**
 
