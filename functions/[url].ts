@@ -39,7 +39,7 @@ export const onRequestGet = async (context: { request: Request, env: Env }) => {
     }
 
     // 正常重定向
-    const link = await context.env.kv.get(url, { cacheTtl: 3600 });
+    const link = await context.env.kv.get(url);
     if (link) {
         return Response.redirect(link, 301);
     }
