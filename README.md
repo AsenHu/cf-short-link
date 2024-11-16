@@ -59,6 +59,7 @@
 |Provide either url, expiration or expirationTtl|URL, expiration 和 expirationTtl 都不存在|
 |Provide short|缺少 `short` 字段|
 |Provide q|`q` 没有值|
+|Invalid JSON|你传的不是 JSON，但应该传 JSON|
 
 ---
 

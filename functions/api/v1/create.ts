@@ -26,8 +26,14 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     console.log('鉴权通过');
 
     // 规范用户输入
-    const data: Data = await context.request.json();
-    console.log('得到数据', data);
+    let data: Data;
+    try {
+        data = await context.request.json();
+        console.log('得到数据', data);
+    } catch (error) {
+        console.log('解析 JSON 失败', error);
+        return genResponse({ ok: false, msg: "Invalid JSON" }, 400);
+    }
     // 检查 URL 是否合法
     if (!data.url || !/^https?:\/\//.test(data.url)) {
         console.log('URL 不合法');
