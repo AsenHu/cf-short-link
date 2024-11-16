@@ -1,6 +1,7 @@
 interface Env {
     tokens: string;
     kv: KVNamespace;
+    domain: string;
 }
 
 interface Data {
@@ -78,16 +79,20 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     }
 
     // 存储数据
+    const metadata = { url: data.url.slice(0, 1024) };
     // 判断是否设置了过期时间
     if (data.expiration) {
-        await context.env.kv.put(shortLink, data.url, { expiration: data.expiration });
+        await context.env.kv.put(shortLink, data.url, { expiration: data.expiration, metadata: metadata });
     }
     if (data.expirationTtl) {
-        await context.env.kv.put(shortLink, data.url, { expirationTtl: data.expirationTtl });
+        await context.env.kv.put(shortLink, data.url, { expirationTtl: data.expirationTtl, metadata: metadata });
     }
 
     // 返回结果
-    const domain = data.lowercase === false && data.capital === true ? 'B0.BY' : 'b0.by';
+    let domain = context.env.domain;
+    if (data.lowercase === false && data.capital === true) {
+        domain = domain.toUpperCase();
+    }
     const shortUrl = `${domain}/${shortLink}`;
 
     return genResponse({ ok: true, msg: "Good", data: { short: shortUrl } }, 200);
