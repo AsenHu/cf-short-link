@@ -79,7 +79,7 @@ export const onRequestPost = async (context: { request: Request, env: Env }) => 
     }
 
     // 存储数据
-    const metadata = data.url.slice(0, 1023);
+    const metadata = data.url.slice(0, 1015);
     // 判断是否设置了过期时间
     if (data.expiration) {
         await context.env.kv.put(shortLink, data.url, { expiration: data.expiration, metadata: metadata });
