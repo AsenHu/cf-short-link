@@ -22,7 +22,7 @@
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241106.0",
+    "@cloudflare/workers-types": "^4.20241112.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/node": "^22.9.0",
     "@vitejs/plugin-vue": "^5.1.4",
