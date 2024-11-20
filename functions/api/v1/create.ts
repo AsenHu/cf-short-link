@@ -14,7 +14,7 @@ interface Data {
     expirationTtl?: number;
 }
 
-export const onRequestPost = async (context: { request: Request, env: Env }) => {
+const onRequestPost = async (context: { request: Request, env: Env }) => {
     // 鉴权
     const token = context.request.headers.get('Authorization');
     const tokens: string[] = JSON.parse(context.env.tokens);
@@ -122,7 +122,7 @@ function genResponse(context: { ok: boolean, msg: string, data?: { short: string
     });
 }
 
-export const onRequestOptions = async () => {
+const onRequestOptions = async () => {
     return new Response(null, {
         status: 204,
         headers: {
@@ -134,3 +134,5 @@ export const onRequestOptions = async () => {
         }
     });
 }
+
+export { onRequestPost, onRequestOptions };
