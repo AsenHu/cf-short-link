@@ -121,3 +121,16 @@ function genResponse(context: { ok: boolean, msg: string, data?: { short: string
         }
     });
 }
+
+export const onRequestOptions = async () => {
+    return new Response(null, {
+        status: 204,
+        headers: {
+            'Allow': 'POST',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '86400'
+        }
+    });
+}
