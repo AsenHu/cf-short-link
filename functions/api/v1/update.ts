@@ -80,7 +80,11 @@ function genResponse(context: { ok: boolean, msg: string, data?: { short: string
     return new Response(JSON.stringify(context), {
         status: status,
         headers: {
+            'Allow': 'PUT',
             'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'PUT',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '86400',
             'Content-Type': 'application/json'
         }
     });
