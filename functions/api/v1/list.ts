@@ -20,7 +20,7 @@ interface Data {
     links: Link[];
 }
 
-export const onRequestGet = async (context: { request: Request, env: Env }) => {
+const onRequestGet = async (context: { request: Request, env: Env }) => {
     // 鉴权
     const token = context.request.headers.get('Authorization');
     const tokens: string[] = JSON.parse(context.env.tokens);
@@ -77,3 +77,17 @@ function genResponse(context: { ok: boolean, msg: string, data?: Data }, status:
         }
     });
 }
+
+const onRequestOptions = async () => {
+    return new Response(null, {
+        status: 204,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '86400'
+        }
+    });
+}
+
+export { onRequestGet, onRequestOptions };
