@@ -1,10 +1,10 @@
-use anyhow::{bail, Result};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::{
-    new_request,
-    response::{CreateData, Response},
+    request::send_request,
+    response::{handle_response, CreateData},
 };
 
 #[skip_serializing_none]
@@ -30,7 +30,6 @@ pub(crate) fn create(
     expiration: Option<Box<str>>,
     expiration_ttl: Option<Box<str>>,
 ) -> Result<()> {
-    println!("Sending request, sit tight.");
     let body_struct = RequestBody {
         url: short_link,
         length,
@@ -40,21 +39,15 @@ pub(crate) fn create(
         expiration,
         expiration_ttl,
     };
-    let response = new_request!(
-        create,
-        endpoint,
-        token,
-        serde_json::to_string(&body_struct)?,
-        ""
-    )
-    .into_string()?;
-    let response: Response<CreateData> = serde_json::from_str(&response)?;
-    if response.ok {
-        println!("Success!");
-        println!("Short Link created: {}", response.data.unwrap().short)
-    } else {
-        println!("Failed.");
-        bail!("{}", response.msg);
-    }
+    let response = send_request::<CreateData>(
+        "create",
+        &endpoint,
+        Some(&token),
+        Some(&serde_json::to_string(&body_struct)?),
+        None,
+        None,
+    )?;
+    let data = handle_response(response)?.unwrap();
+    println!("Short Link created: {}", data.short);
     Ok(())
 }

@@ -1,20 +1,13 @@
 use anyhow::Result;
 
 use crate::{
-    new_request,
-    response::{GetData, Response},
+    request::send_request,
+    response::{handle_response, GetData},
 };
 
 pub(crate) fn get(endpoint: Box<str>, short: Box<str>) -> Result<()> {
-    println!("Sending request, sit tight.");
-    let response = new_request!(get, endpoint, "", short, "").into_string()?;
-    let response: Response<GetData> = serde_json::from_str(&response)?;
-    if response.ok {
-        println!("Success!");
-        println!("URL Found: {}", response.data.unwrap().url)
-    } else {
-        println!("Failed.");
-        println!("The short link does not match any URL.");
-    }
+    let response = send_request::<GetData>("get", &endpoint, None, None, Some(&short), None)?;
+    let data = handle_response(response)?.unwrap();
+    println!("URL Found: {}", data.url);
     Ok(())
 }

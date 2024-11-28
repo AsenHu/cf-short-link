@@ -1,24 +1,11 @@
-use anyhow::{bail, Result};
+use anyhow::Result;
 
-use crate::{new_request, response::Response};
+use crate::{request::send_request, response::handle_response};
 
 pub(crate) fn delete(endpoint: Box<str>, short: Box<str>, token: Box<str>) -> Result<()> {
-    println!("Sending request, sit tight.");
-    let response = new_request!(
-        delete,
-        endpoint,
-        token,
-        format!(r#"{{"short":"{}"}}"#, short),
-        ""
-    )
-    .into_string()?;
-    let response: Response<()> = serde_json::from_str(&response)?;
-    if response.ok {
-        println!("Success!");
-        println!("Deleted short link: {}", short);
-    } else {
-        println!("Failed.");
-        bail!("{}", response.msg);
-    }
+    let body = format!(r#"{{"short":"{}"}}"#, short);
+    let response = send_request::<()>("delete", &endpoint, Some(&token), Some(&body), None, None)?;
+    handle_response(response)?;
+    println!("Deleted short link: {}", short);
     Ok(())
 }

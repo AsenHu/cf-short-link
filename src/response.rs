@@ -1,3 +1,4 @@
+use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -11,6 +12,7 @@ pub struct Response<T> {
 pub struct CreateData {
     pub short: Box<str>,
 }
+pub type UpdateData = CreateData;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetData {
@@ -37,4 +39,14 @@ pub struct Short {
     #[serde(rename = "noHttps")]
     pub no_https: Box<str>,
     pub full: Box<str>,
+}
+
+pub(crate) fn handle_response<T>(response: Response<T>) -> Result<Option<T>> {
+    if response.ok {
+        println!("Success!");
+        Ok(response.data)
+    } else {
+        println!("Failed.");
+        bail!("{}", response.msg);
+    }
 }
