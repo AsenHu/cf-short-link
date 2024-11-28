@@ -163,12 +163,6 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          cache: false
-          go-version: "stable"
-          check-latest: true
       - uses: actions/cache@v4
         with:
           path: |
@@ -178,12 +172,6 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/go
-            ~/.cache/go-build
-          key: go-${{ runner.os }}-${{ hashFiles('**/go.sum') }}
       - name: Install toolchain
         run: |
           rustup update
