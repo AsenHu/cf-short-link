@@ -1,0 +1,210 @@
+# https://github.com/james58899/hath-rust/blob/7c36070ef39e5ef21ff07e1d4e8c3176ad72a146/.github/workflows/build.yml
+name: Build
+
+on:
+  push:
+    branches: "cli"
+  pull_request:
+    branches: "cli"
+  workflow_call:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: |
+          sudo apt-get update && sudo apt-get -y install libc6-i386 libc6-dev-i386
+          sudo apt-get install -y crossbuild-essential-arm64 crossbuild-essential-armhf
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: cargo-linux-gnu-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install toolchain
+        run: |
+          rustup update
+          rustup target add "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu" "armv7-unknown-linux-gnueabihf"
+      - name: Build x86_64
+        env:
+          CC: gcc-10
+          CARGO_PROFILE_RELEASE_LTO: fat
+        run: |
+          cargo build --verbose --release --target=x86_64-unknown-linux-gnu
+      - name: Build ARM64
+        env:
+          CC: "aarch64-linux-gnu-gcc"
+          LD: "aarch64-linux-gnu-ld"
+          RUSTFLAGS: "-Clinker=aarch64-linux-gnu-gcc"
+          CARGO_PROFILE_RELEASE_LTO: fat
+        run: |
+          cargo build --verbose --release --target=aarch64-unknown-linux-gnu
+      - name: Build ARMv7
+        env:
+          CC: "arm-linux-gnueabihf-gcc"
+          LD: "arm-linux-gnueabihf-ld"
+          RUSTFLAGS: "-Clinker=arm-linux-gnueabihf-gcc"
+          CARGO_PROFILE_RELEASE_LTO: fat
+        run: |
+          cargo build --verbose --release --target=armv7-unknown-linux-gnueabihf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scli-x86_64-unknown-linux-gnu
+          path: target/x86_64-unknown-linux-gnu/release/scli
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scli-aarch64-unknown-linux-gnu
+          path: target/aarch64-unknown-linux-gnu/release/scli
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scli-armv7-unknown-linux-gnueabihf
+          path: target/armv7-unknown-linux-gnueabihf/release/scli
+
+  build-linux-musl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 18
+          sudo apt-get install -y crossbuild-essential-arm64 crossbuild-essential-armhf
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: cargo-linux-musl-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install toolchain
+        run: |
+          rustup update
+          rustup target add "x86_64-unknown-linux-musl" "aarch64-unknown-linux-musl" "armv7-unknown-linux-musleabihf"
+      - name: Build x86_64
+        env:
+          CC: clang-18
+          CXX: clang-18
+          CFLAGS: "-fuse-ld=lld-18"
+          CXXFLAGS: "-fuse-ld=lld-18"
+          RUSTFLAGS: "-Clinker=clang-18 -Clink-arg=-fuse-ld=lld-18 -Clink-arg=--target=x86_64-unknown-linux-musl"
+          CARGO_PROFILE_RELEASE_LTO: fat
+        run: |
+          cargo build --verbose --release --target=x86_64-unknown-linux-musl
+      - name: Build ARM64
+        env:
+          CC: clang-18
+          CXX: clang-18
+          CFLAGS: "-fuse-ld=lld-18"
+          CXXFLAGS: "-fuse-ld=lld-18"
+          RUSTFLAGS: "-Clinker=clang-18 -Clink-arg=-fuse-ld=lld-18 -Clink-arg=--target=aarch64-unknown-linux-musl"
+          CARGO_PROFILE_RELEASE_LTO: fat
+        run: |
+          cargo build --verbose --release --target=aarch64-unknown-linux-musl
+      - name: Build ARMv7
+        env:
+          CC: clang-18
+          CXX: clang-18
+          CFLAGS: "-fuse-ld=lld-18 -Wno-unused-command-line-argument"
+          CXXFLAGS: "-fuse-ld=lld-18 -Wno-unused-command-line-argument"
+          RUSTFLAGS: "-Clinker=clang-18 -Clink-arg=-fuse-ld=lld-18 -Clink-arg=--target=armv7-unknown-linux-musleabihf"
+          CARGO_PROFILE_RELEASE_LTO: fat
+        run: |
+          cargo build --verbose --release --target=armv7-unknown-linux-musleabihf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scli-x86_64-unknown-linux-musl
+          path: target/x86_64-unknown-linux-musl/release/scli
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scli-aarch64-unknown-linux-musl
+          path: target/aarch64-unknown-linux-musl/release/scli
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scli-armv7-unknown-linux-musleabihf
+          path: target/armv7-unknown-linux-musleabihf/release/scli
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: cargo-windows-${{ hashFiles('**/Cargo.lock') }}
+      - name: Build x86_64
+        env:
+          CARGO_PROFILE_RELEASE_LTO: fat
+        run: cargo build --verbose --release --target=x86_64-pc-windows-msvc
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scli-x86_64-pc-windows-msvc
+          path: target/x86_64-pc-windows-msvc/release/scli.exe
+
+  build-macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          cache: false
+          go-version: "stable"
+          check-latest: true
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/go
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('**/go.sum') }}
+      - name: Install toolchain
+        run: |
+          rustup update
+          rustup target add x86_64-apple-darwin
+      - name: Build x86_64
+        env:
+          CC: clang
+          LD: clang
+          RUSTFLAGS: "-Clinker=clang -Clink-arg=--target=x86_64-apple-darwin -Clink-arg=-framework -Clink-arg=CoreFoundation -Clink-arg=-framework -Clink-arg=Security"
+          CARGO_PROFILE_RELEASE_LTO: fat
+        run: cargo build --release --target=x86_64-apple-darwin
+      - name: Build ARM64
+        env:
+          CC: "clang"
+          LD: "clang"
+          RUSTFLAGS: "-Clinker=clang -Clink-arg=--target=aarch64-apple-darwin -Clink-arg=-framework -Clink-arg=CoreFoundation -Clink-arg=-framework -Clink-arg=Security"
+          CARGO_PROFILE_RELEASE_LTO: fat
+        run: cargo build --release --target=aarch64-apple-darwin
+      - name: Universal binary
+        run: lipo -create target/x86_64-apple-darwin/release/scli target/aarch64-apple-darwin/release/scli -output target/release/scli
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scli-universal-apple-darwin
+          path: target/release/scli

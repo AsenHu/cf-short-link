@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags: ["**"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  Build:
+    uses: ./.github/workflows/build.yml
+  Release:
+    needs: Build
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.cache/rust-script/
+          key: cargo-release-${{ hashFiles('./.github/scripts/generate_completions.rs') }}
+      - name: Create completions
+        run: |
+          cargo install -f rust-script
+          tar -cvf completions.tar -C `./.github/scripts/generate_completions.rs` .
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Rename artifact
+        run: |
+          mv artifacts/scli-x86_64-unknown-linux-gnu/scli scli-x86_64-unknown-linux-gnu
+          mv artifacts/scli-x86_64-unknown-linux-musl/scli scli-x86_64-unknown-linux-musl
+          mv artifacts/scli-aarch64-unknown-linux-gnu/scli scli-aarch64-unknown-linux-gnu
+          mv artifacts/scli-aarch64-unknown-linux-musl/scli scli-aarch64-unknown-linux-musl
+          mv artifacts/scli-armv7-unknown-linux-gnueabihf/scli scli-armv7-unknown-linux-gnueabihf
+          mv artifacts/scli-armv7-unknown-linux-musleabihf/scli scli-armv7-unknown-linux-musleabihf
+          mv artifacts/scli-x86_64-pc-windows-msvc/scli.exe scli-x86_64-pc-windows-msvc.exe
+          mv artifacts/scli-universal-apple-darwin/scli scli-universal-apple-darwin
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: |
+            scli-x86_64-unknown-linux-gnu
+            scli-x86_64-unknown-linux-musl
+            scli-aarch64-unknown-linux-gnu
+            scli-aarch64-unknown-linux-musl
+            scli-armv7-unknown-linux-gnueabihf
+            scli-armv7-unknown-linux-musleabihf
+            scli-x86_64-pc-windows-msvc.exe
+            scli-universal-apple-darwin
+            completions.tar
