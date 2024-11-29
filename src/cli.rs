@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{ArgAction, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[clap(subcommand_required = true, arg_required_else_help = true)]
@@ -38,14 +38,14 @@ pub enum Commands {
         /// Short link length
         #[arg(long)]
         length: Option<Box<str>>,
-        /// Whether the short link is include a number
-        #[arg(long)]
+        /// Disable including numbers in the short link.
+        #[arg(long, action = ArgAction::SetFalse)]
         number: Option<bool>,
-        /// Whether the short link is include a captial latter
-        #[arg(long)]
+        /// Disable including capital letters in the short link.
+        #[arg(long, action = ArgAction::SetFalse)]
         capital: Option<bool>,
-        /// Whether the short link is include a lower-case latter
-        #[arg(long)]
+        /// Disable including lowercase letters in the short link.
+        #[arg(long, action = ArgAction::SetFalse)]
         lowercase: Option<bool>,
         /// Expiration timestamp
         #[arg(long)]
