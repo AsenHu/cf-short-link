@@ -12,7 +12,6 @@ pub struct Response<T> {
 pub struct CreateData {
     pub short: Box<str>,
 }
-pub type UpdateData = CreateData;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetData {

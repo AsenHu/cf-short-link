@@ -2,10 +2,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::{
-    request::send_request,
-    response::{handle_response, UpdateData},
-};
+use crate::{request::send_request, response::handle_response};
 
 #[skip_serializing_none]
 #[derive(Deserialize, Serialize, Debug)]
@@ -30,15 +27,15 @@ pub(crate) fn update(
         expiration,
         expiration_ttl,
     };
-    let response = send_request::<UpdateData>(
-        "create",
+    let response = send_request::<()>(
+        "update",
         &endpoint,
         Some(&token),
         Some(&serde_json::to_string(&body_struct)?),
         None,
         None,
     )?;
-    let data = handle_response::<UpdateData>(response)?.unwrap();
-    println!("Short Link {} updated to: {}", data.short, url);
+    handle_response::<()>(response)?.unwrap();
+    println!("Short Link {} updated to: {}", short, url);
     Ok(())
 }
