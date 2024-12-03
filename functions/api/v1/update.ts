@@ -52,15 +52,17 @@ const onRequestPut = async (context: { request: Request, env: Env }) => {
         return genResponse({ ok: false, msg: "expirationTtl must be at least 60 seconds" }, 400);
     }
 
-    // 准备更新数据
+    // 检查目标短链接是否存在
     const shortLink = data.short;
-    let url = data.url;
-    if (!url) {
-        url = await context.env.kv.get(shortLink);
-        if (!url) {
-            return genResponse({ ok: false, msg: "Not Found" }, 404);
-        }
+    if (!shortLink) {
+        return genResponse({ ok: false, msg: "No short link is provided" }, 400);
     }
+    const shortValue = await context.env.kv.get(shortLink)
+    if (shortValue == null) {
+        return genResponse({ ok: false, msg: "Update a non-exist short link is not permit" }, 400);
+    }
+    // 准备长链接的数据
+    const url = data.url || shortValue;
 
     // 更新数据
     const metadata = url.slice(0, 1022);
