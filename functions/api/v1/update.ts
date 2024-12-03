@@ -54,13 +54,13 @@ const onRequestPut = async (context: { request: Request, env: Env }) => {
 
     // 准备更新数据
     const shortLink = data.short;
-    let url = data.url;
-    if (!url) {
-        url = await context.env.kv.get(shortLink);
-        if (!url) {
-            return genResponse({ ok: false, msg: "Not Found" }, 404);
-        }
+    if (!shortLink) {
+        return genResponse({ ok: false, msg: "No short link is provided" }, 400);
     }
+    if (await context.env.kv.get(shortLink) == null) {
+        return genResponse({ ok: false, msg: "Update a non-exist short link is not permit" }, 400);
+    }
+    const url = data.url || (await context.env.kv.get(shortLink));
 
     // 更新数据
     const metadata = url.slice(0, 1022);
