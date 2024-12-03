@@ -27,6 +27,7 @@ const onRequestDelete = async (context: { request: Request, env: Env }) => {
         return genResponse({ ok: false, msg: "Provide short" }, 400);
     }
     console.log('short 存在');
+    // 检查该 short 是否有值
     if (await context.env.kv.get(data.short) == null) {
         return genResponse({ ok: false, msg: "Delete a non-exist short link is not permit" }, 400);
     }
