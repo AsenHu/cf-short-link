@@ -84,6 +84,9 @@ tokens 不建议用太奇怪的字符，长度建议 43 位大小写字母数字
 |Invalid JSON|你传的不是 JSON，但应该传 JSON|
 |expiration must be greater than the current time|你来自过去|
 |length must be less than 512|你没事吧|
+|Delete a non-exist short link is not permit|删除了不存在的短链接|
+|No short link is provided|没有提供短链接字段|
+|Update a non-exist short link is not permit|不允许更新不存在的短链接|
 
 ---
 
