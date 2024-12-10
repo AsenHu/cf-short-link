@@ -19,17 +19,17 @@ export const useNavStore = defineStore(
     const navList = ref<NavItem[]>([
       {
         key: 'Home',
-        lable: '首页',
+        lable: 'Dashboard',
         icon: DashboardOutlined,
       },
       {
         key: 'Manage',
-        lable: '管理',
+        lable: 'Manage',
         icon: SettingOutlined,
       },
       {
         key: 'Auth',
-        lable: '认证',
+        lable: 'Auth',
         icon: KeyOutlined,
       },
     ])
