@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { useTokenStore } from '@/stores/token'
-import { message } from 'ant-design-vue'
 
 const base_url = import.meta.env.VITE_BASE_URL
 
@@ -20,11 +19,7 @@ axiosInstance.interceptors.response.use(
     return response
   },
   error => {
-    console.log(error)
-    if (error.response?.data.ok == false) {
-      message.error(error.response.data.msg)
-    }
-    return Promise.resolve(error)
+    return Promise.resolve(error.response)
   },
 )
 
