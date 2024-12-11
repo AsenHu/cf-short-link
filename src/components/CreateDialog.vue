@@ -61,7 +61,7 @@ const onFinish = async (values: shortLinkAdd) => {
   const { data: result } = await addShortLink(values)
   disabled.value = false
   if (!result.ok) return message.error(result.msg)
-  message.success(result.msg)
+  message.success('Short link created successfully')
   formState.url = ''
   formState.length = 6
   formState.number = true
@@ -70,7 +70,19 @@ const onFinish = async (values: shortLinkAdd) => {
   formState.expiration = timeValue.value
   formState.expirationTtl = null
   resultLink.value = result.data.short
-  emit('update:visible', false)
+  resultDialogOpen.value = true
+}
+
+const handleDialogClose = () => {
+  resultDialogOpen.value = false
+  setTimeout(() => {
+    emit('update:visible', false)
+  }, 300)
+}
+
+const handleCopy = (url: string) => {
+  navigator.clipboard.writeText(url)
+  message.success('Link copied to clipboard')
 }
 </script>
 
@@ -136,10 +148,22 @@ const onFinish = async (values: shortLinkAdd) => {
     </a-form>
   </a-modal>
 
-  <a-modal v-model:open="resultDialogOpen" title="Success">
+  <a-modal
+    v-model:open="resultDialogOpen"
+    title="Success"
+    :closable="false"
+    :cancel-button-props="{
+      style: { display: 'none' },
+    }"
+    @ok="handleDialogClose"
+  >
     <a-typography-paragraph :copyable="{ tooltip: false }">
       {{ resultLink }}
     </a-typography-paragraph>
+
+    <a-button type="primary" @click="handleCopy(`https://${resultLink}`)">
+      Copy Full Link
+    </a-button>
   </a-modal>
 </template>
 
