@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, defineEmits, computed, reactive } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { addShortLink } from '@/apis/index'
 import { message } from 'ant-design-vue'
 import type { shortLinkAdd } from '@/types/index'
@@ -9,23 +9,15 @@ defineOptions({
   name: 'CreateDialogComponent',
 })
 
-const prop = defineProps<{
-  visible: boolean
+const props = defineProps<{
+  emitResult: () => void
+  destroyComponent: () => void
 }>()
 
-const emit = defineEmits(['update:visible'])
-
-const isOpen = ref(prop.visible)
+const isOpen = ref(true)
 const disabled = ref(false)
 const resultDialogOpen = ref(false)
 const resultLink = ref('test')
-
-watch(
-  () => prop.visible,
-  newVal => {
-    isOpen.value = newVal
-  },
-)
 
 const expTimes = ref<{
   date: Dayjs | null
@@ -75,9 +67,8 @@ const onFinish = async (values: shortLinkAdd) => {
 
 const handleDialogClose = () => {
   resultDialogOpen.value = false
-  setTimeout(() => {
-    emit('update:visible', false)
-  }, 300)
+  props.emitResult()
+  props.destroyComponent()
 }
 
 const handleCopy = (url: string) => {
@@ -93,7 +84,7 @@ const handleCopy = (url: string) => {
     v-model:open="isOpen"
     title="Create Link"
     :footer="null"
-    @cancel="emit('update:visible', false)"
+    @cancel="props.destroyComponent()"
   >
     <a-form
       :model="formState"

@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import CreateDialogComponent from '@/components/CreateDialog.vue'
-import { ref } from 'vue'
+import { useCreateLinkDialog } from '@/components/fc/index'
 
 defineOptions({
   name: 'ManagePage',
 })
 
-const createDialogVisible = ref(false)
+const handleCreateLink = async () => {
+  await useCreateLinkDialog()
+}
 </script>
 
 <template>
@@ -15,10 +16,7 @@ const createDialogVisible = ref(false)
       <!-- <template #extra><a href="#">more</a></template> -->
       <p>Create a short link.</p>
       <p>Shorten a URL.</p>
-      <a-button type="primary" @click="createDialogVisible = true">
-        Create
-      </a-button>
-      <create-dialog-component v-model:visible="createDialogVisible" />
+      <a-button type="primary" @click="handleCreateLink"> Create </a-button>
     </a-card>
   </a-space>
 </template>
