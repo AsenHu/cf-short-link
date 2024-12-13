@@ -81,6 +81,9 @@ tokens 不建议用太奇怪的字符，长度建议 43 位大小写字母数字
 |Invalid JSON|你传的不是 JSON，但应该传 JSON|
 |expiration must be greater than the current time|你来自过去|
 |length must be less than 512|你没事吧|
+|Delete a non-exist short link is not permit|删除了不存在的短链接|
+|No short link is provided|没有提供短链接字段|
+|Update a non-exist short link is not permit|不允许更新不存在的短链接|
 
 ---
 
@@ -118,7 +121,7 @@ GET /api/v1/get?q=short
 
 ### 列出短链接
 
-GET /api/v1/list?q=nekos.chat&c=nextCursor
+GET /api/v1/list?q=nekos.chat&c=nextCursor&all=true
 
 **请求参数**
 
@@ -126,8 +129,11 @@ GET /api/v1/list?q=nekos.chat&c=nextCursor
 |:-|:-|:-|:-|
 |q|string|可选：长链接中包含的查询字符串|无|
 |c|string|可选：分页游标|无|
+|all|boolean|可选：是否一次性返回全部|false|
 
 分页游标的值由上一次请求 list 的 `data.cursor` 提供，用于获取下一页的结果。
+
+当 `all` 为 `true` 时，仍然可以指定 `cursor`，这样它只会返回从你指定的 `cursor` 之后的条目。
 
 **响应示例**
 
@@ -176,11 +182,15 @@ GET /api/v1/list?q=nekos.chat&c=nextCursor
 
 当长链接大于等于 1022 个字符（ACSII），`data.links[].url` 将不存在。
 
+如果条目是从奇奇怪怪的地方加进去的，`data.links[].expiration` 有可能不存在。
+
 当设置了查询字符串时，`links` 可能是空数组。
 
 当 `list_complete` 为 `true` 时，`cursor` 不存在。
 
 `links` 数组单次最多返回 1000 条，但无论是不是最后一页，返回的内容都可能少于 1000 条。
+
+当配置了 `all=true` 时，一定会列出剩下的全部条目，因此，`list_complete` 一定为 `true`，`cursor` 一定不存在。
 
 ### 创建短链接
 
