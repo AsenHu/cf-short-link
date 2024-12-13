@@ -8,7 +8,7 @@ import {
 
 type NavItem = {
   key: string
-  lable: string
+  label: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any
 }
@@ -19,17 +19,17 @@ export const useNavStore = defineStore(
     const navList = ref<NavItem[]>([
       {
         key: 'Home',
-        lable: 'Dashboard',
+        label: 'Dashboard',
         icon: DashboardOutlined,
       },
       {
         key: 'Manage',
-        lable: 'Manage',
+        label: 'Manage',
         icon: SettingOutlined,
       },
       {
         key: 'Auth',
-        lable: 'Auth',
+        label: 'Auth',
         icon: KeyOutlined,
       },
     ])

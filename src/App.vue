@@ -41,7 +41,7 @@ onMounted(() => {
           "
         >
           <component :is="item.icon" />
-          <span>{{ item.lable }}</span>
+          <span>{{ item.label }}</span>
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
@@ -64,9 +64,12 @@ onMounted(() => {
           padding: '24px',
           background: '#fff',
           minHeight: '280px',
+          height: '100%',
         }"
       >
-        <router-view />
+        <div class="page-content">
+          <router-view />
+        </div>
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -75,6 +78,7 @@ onMounted(() => {
 <style scoped lang="less">
 .layout {
   height: 100vh;
+  overflow: hidden;
 
   .logo {
     display: flex;
@@ -111,5 +115,28 @@ onMounted(() => {
 
 .site-layout .site-layout-background {
   background: #fff;
+}
+
+.page-content {
+  overflow-y: auto;
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+  padding: 0 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #aaaa !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa !important;
 }
 </style>

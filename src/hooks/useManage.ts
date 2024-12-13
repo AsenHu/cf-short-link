@@ -1,6 +1,6 @@
-import { ref } from 'vue'
+import { ref, h } from 'vue'
 import { message } from 'ant-design-vue'
-import dayjs from 'dayjs'
+// import dayjs from 'dayjs'
 
 import { getLink } from '@/apis/index'
 
@@ -11,19 +11,30 @@ export const useManage = () => {
 
   const columns = [
     {
-      title: 'key',
-      dataIndex: 'key',
-      key: 'key',
-    },
-    {
-      title: 'full link',
+      title: 'Full Link',
       dataIndex: 'full',
       key: 'full',
+      ellipsis: true,
+      render: (text: string) =>
+        h(
+          'a',
+          { href: text, target: '_blank', rel: 'noopener noreferrer' },
+          text,
+        ),
     },
     {
-      title: 'original link',
+      title: 'Original Link',
       dataIndex: 'url',
       key: 'url',
+      ellipsis: true,
+      render: (text: string) =>
+        text
+          ? h(
+              'a',
+              { href: text, target: '_blank', rel: 'noopener noreferrer' },
+              text,
+            )
+          : 'N/A',
     },
   ]
 
@@ -46,7 +57,6 @@ export const useManage = () => {
   return {
     linkList,
     columns,
-
     getLinkList,
   }
 }
