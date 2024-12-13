@@ -20,13 +20,7 @@ interface Data {
     links: Link[];
 }
 
-interface Result {
-    keys: { name: string, metadata?: string, expiration?: number }[];
-    list_complete: boolean;
-    cursor?: string;
-}
-
-const onRequestGet = async (context: { request: Request, env: Env }) => {
+export const onRequestGet = async (context: { request: Request, env: Env }) => {
     // 鉴权
     const token = context.request.headers.get('Authorization');
     const tokens: string[] = JSON.parse(context.env.tokens);
@@ -39,31 +33,11 @@ const onRequestGet = async (context: { request: Request, env: Env }) => {
 
     // 从 URL 中获取查询参数的值
     const query = new URL(context.request.url).searchParams.get('q') || '';
-    let cursor = new URL(context.request.url).searchParams.get('c') || '';
-    const list_all = new URL(context.request.url).searchParams.get('all') || '';
-    console.log('Query:', query, 'Cursor:', cursor, 'List All:', list_all);
+    const cursor = new URL(context.request.url).searchParams.get('c') || '';
+    console.log('Query:', query, 'Cursor:', cursor);
 
     // 获取数据
-    console.log('Start KV list', 'timestamp:', Date.now());
-    let result: Result;
-    if (list_all === 'true') {
-        let allKeys = []
-        let entries: Result;
-        do {
-            entries = await context.env.kv.list({ cursor: cursor || undefined });
-            if ('cursor' in entries) {
-                cursor = entries.cursor
-            }
-            allKeys.push(...entries.keys)
-        } while (!entries.list_complete)
-        result = {
-            keys: allKeys,
-            list_complete: true
-        }
-    } else {
-        result = await context.env.kv.list({ cursor: cursor || undefined });
-    }
-    console.log('End KV list', 'timestamp:', Date.now());
+    const result = await context.env.kv.list({ cursor: cursor || undefined });
 
     // 筛选 keys
     let keys = result.keys;
@@ -103,17 +77,3 @@ function genResponse(context: { ok: boolean, msg: string, data?: Data }, status:
         }
     });
 }
-
-const onRequestOptions = async () => {
-    return new Response(null, {
-        status: 204,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Access-Control-Max-Age': '86400'
-        }
-    });
-}
-
-export { onRequestGet, onRequestOptions };
