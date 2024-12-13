@@ -2,7 +2,7 @@ interface Env {
     kv: KVNamespace;
 }
 
-export const onRequestGet = async (context: { request: Request, env: Env }) => {
+const onRequestGet = async (context: { request: Request, env: Env }) => {
     // 从 URL 中获取查询参数 q 的值
     const q = new URL(context.request.url).searchParams.get('q');
     console.log(q);
@@ -62,3 +62,17 @@ function genResponse(context: { ok: boolean, msg: string, data?: { url: string }
         }
     });
 }
+
+const onRequestOptions = async () => {
+    return new Response(null, {
+        status: 204,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '86400'
+        }
+    });
+}
+
+export { onRequestGet, onRequestOptions };
