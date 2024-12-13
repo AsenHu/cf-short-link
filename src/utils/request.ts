@@ -14,6 +14,15 @@ const axiosInstance = axios.create({
   },
 })
 
+axiosInstance.interceptors.response.use(
+  response => {
+    return response
+  },
+  error => {
+    return Promise.resolve(error.response)
+  },
+)
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Response<T = any> = {
   ok: boolean

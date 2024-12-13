@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, defineEmits, computed, reactive } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { addShortLink } from '@/apis/index'
 import { message } from 'ant-design-vue'
 import type { shortLinkAdd } from '@/types/index'
@@ -9,23 +9,15 @@ defineOptions({
   name: 'CreateDialogComponent',
 })
 
-const prop = defineProps<{
-  visible: boolean
+const props = defineProps<{
+  emitResult: () => void
+  destroyComponent: () => void
 }>()
 
-const emit = defineEmits(['update:visible'])
-
-const isOpen = ref(prop.visible)
+const isOpen = ref(true)
 const disabled = ref(false)
 const resultDialogOpen = ref(false)
 const resultLink = ref('test')
-
-watch(
-  () => prop.visible,
-  newVal => {
-    isOpen.value = newVal
-  },
-)
 
 const expTimes = ref<{
   date: Dayjs | null
@@ -61,7 +53,7 @@ const onFinish = async (values: shortLinkAdd) => {
   const { data: result } = await addShortLink(values)
   disabled.value = false
   if (!result.ok) return message.error(result.msg)
-  message.success(result.msg)
+  message.success('Short link created successfully')
   formState.url = ''
   formState.length = 6
   formState.number = true
@@ -70,7 +62,18 @@ const onFinish = async (values: shortLinkAdd) => {
   formState.expiration = timeValue.value
   formState.expirationTtl = null
   resultLink.value = result.data.short
-  emit('update:visible', false)
+  resultDialogOpen.value = true
+}
+
+const handleDialogClose = () => {
+  resultDialogOpen.value = false
+  props.emitResult()
+  props.destroyComponent()
+}
+
+const handleCopy = (url: string) => {
+  navigator.clipboard.writeText(url)
+  message.success('Link copied to clipboard')
 }
 </script>
 
@@ -81,7 +84,7 @@ const onFinish = async (values: shortLinkAdd) => {
     v-model:open="isOpen"
     title="Create Link"
     :footer="null"
-    @cancel="emit('update:visible', false)"
+    @cancel="props.destroyComponent()"
   >
     <a-form
       :model="formState"
@@ -136,10 +139,22 @@ const onFinish = async (values: shortLinkAdd) => {
     </a-form>
   </a-modal>
 
-  <a-modal v-model:open="resultDialogOpen" title="Success">
+  <a-modal
+    v-model:open="resultDialogOpen"
+    title="Success"
+    :closable="false"
+    :cancel-button-props="{
+      style: { display: 'none' },
+    }"
+    @ok="handleDialogClose"
+  >
     <a-typography-paragraph :copyable="{ tooltip: false }">
       {{ resultLink }}
     </a-typography-paragraph>
+
+    <a-button type="primary" @click="handleCopy(`https://${resultLink}`)">
+      Copy Full Link
+    </a-button>
   </a-modal>
 </template>
 

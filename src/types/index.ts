@@ -15,3 +15,11 @@ export interface shortLinkAdd {
 // lowercase	boolean	可选：是否包含小写字母	true
 // expiration	number	可选：链接的过期时间戳	无
 // expirationTtl	number	可选：链接的存活时间（秒）	无
+
+export interface shortLinkInstance {
+  key: string
+  noHttps: string
+  full: string
+  url: string | null
+  expiration: number | null
+}
