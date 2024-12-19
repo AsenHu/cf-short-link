@@ -22,12 +22,9 @@ onMounted(() => {
 <template>
   <div class="manage">
     <div class="create">
-      <a-card title="Create" style="width: 300px">
-        <!-- <template #extra><a href="#">more</a></template> -->
-        <p>Create a short link.</p>
-        <p>Shorten a URL.</p>
-        <a-button type="primary" @click="handleCreateLink"> Create </a-button>
-      </a-card>
+      <a-button type="primary" @click="handleCreateLink">
+        Create a link
+      </a-button>
     </div>
 
     <div class="table">
