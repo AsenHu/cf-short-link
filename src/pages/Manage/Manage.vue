@@ -7,11 +7,17 @@ defineOptions({
   name: 'ManagePage',
 })
 
-const { getLinkList, linkList, columns } = useManage()
+const { getLinkList, linkList, columns, currentPage, pageSize, total } =
+  useManage()
 
 const handleCreateLink = async () => {
   await useCreateLinkDialog()
   getLinkList()
+}
+
+const handleChangePage = (page: number, pageSizeValue: number) => {
+  currentPage.value = page
+  pageSize.value = pageSizeValue
 }
 
 onMounted(() => {
@@ -22,12 +28,9 @@ onMounted(() => {
 <template>
   <div class="manage">
     <div class="create">
-      <a-card title="Create" style="width: 300px">
-        <!-- <template #extra><a href="#">more</a></template> -->
-        <p>Create a short link.</p>
-        <p>Shorten a URL.</p>
-        <a-button type="primary" @click="handleCreateLink"> Create </a-button>
-      </a-card>
+      <a-button type="primary" @click="handleCreateLink">
+        Create a link
+      </a-button>
     </div>
 
     <div class="table">
@@ -35,8 +38,11 @@ onMounted(() => {
         :dataSource="linkList"
         :columns="columns"
         :pagination="{
-          pageSize: 10,
+          current: currentPage,
+          pageSize: pageSize,
+          total: total,
           showSizeChanger: true,
+          onChange: handleChangePage,
         }"
       />
     </div>
