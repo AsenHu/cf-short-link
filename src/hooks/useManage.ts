@@ -7,15 +7,12 @@ import { getLink } from '@/apis/index'
 import type { shortLinkInstance } from '@/types/index'
 
 export const useManage = () => {
-  // 添加分页变量
   const currentPage = ref(1)
   const pageSize = ref(10)
   const total = ref(0)
 
-  // 存储完整数据列表
   const originalDataList = ref<shortLinkInstance[]>([])
 
-  // 修改 linkList 为计算属性，实现分页
   const linkList = computed(() => {
     const start = (currentPage.value - 1) * pageSize.value
     const end = currentPage.value * pageSize.value
@@ -55,7 +52,7 @@ export const useManage = () => {
     const { data: result } = await getLink()
 
     if (result.data.list_complete !== true) {
-      message.error('获取链接失败')
+      message.error('Unable to get list')
       return
     }
     originalDataList.value = result.data.links.map(e => {
