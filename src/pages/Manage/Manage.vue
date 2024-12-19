@@ -7,11 +7,17 @@ defineOptions({
   name: 'ManagePage',
 })
 
-const { getLinkList, linkList, columns } = useManage()
+const { getLinkList, linkList, columns, currentPage, pageSize, total } =
+  useManage()
 
 const handleCreateLink = async () => {
   await useCreateLinkDialog()
   getLinkList()
+}
+
+const handleChangePage = (page: number, pageSizeValue: number) => {
+  currentPage.value = page
+  pageSize.value = pageSizeValue
 }
 
 onMounted(() => {
@@ -32,8 +38,11 @@ onMounted(() => {
         :dataSource="linkList"
         :columns="columns"
         :pagination="{
-          pageSize: 10,
+          current: currentPage,
+          pageSize: pageSize,
+          total: total,
           showSizeChanger: true,
+          onChange: handleChangePage,
         }"
       />
     </div>
