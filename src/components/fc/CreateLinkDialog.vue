@@ -67,6 +67,7 @@ const onFinish = async (values: shortLinkAdd) => {
 
 const handleDialogClose = () => {
   resultDialogOpen.value = false
+  isOpen.value = false
   props.emitResult()
   props.destroyComponent()
 }
