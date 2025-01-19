@@ -31,3 +31,11 @@ export const getLink = () => {
 export const updateLink = (data: shortLinkEdit) => {
   return request.post<Response>('/update', data)
 }
+
+export const deleteLink = (key: string) => {
+  return request.delete<Response>(`/delete`, {
+    data: {
+      short: key,
+    },
+  })
+}
