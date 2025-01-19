@@ -1,4 +1,4 @@
-import { ref, h, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { message } from 'ant-design-vue'
 // import dayjs from 'dayjs'
 
@@ -21,30 +21,14 @@ export const useManage = () => {
 
   const columns = [
     {
-      title: 'Full Link',
-      dataIndex: 'full',
+      title: 'Key',
+      dataIndex: 'key',
       key: 'full',
       ellipsis: true,
-      render: (text: string) =>
-        h(
-          'a',
-          { href: text, target: '_blank', rel: 'noopener noreferrer' },
-          text,
-        ),
     },
     {
-      title: 'Original Link',
-      dataIndex: 'url',
-      key: 'url',
-      ellipsis: true,
-      render: (text: string) =>
-        text
-          ? h(
-              'a',
-              { href: text, target: '_blank', rel: 'noopener noreferrer' },
-              text,
-            )
-          : 'N/A',
+      title: 'Action',
+      key: 'action',
     },
   ]
 

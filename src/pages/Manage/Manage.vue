@@ -44,7 +44,11 @@ onMounted(() => {
           showSizeChanger: true,
           onChange: handleChangePage,
         }"
-      />
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'action'"> {{ record }} </template>
+        </template>
+      </a-table>
     </div>
   </div>
 </template>

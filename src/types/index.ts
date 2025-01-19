@@ -23,3 +23,10 @@ export interface shortLinkInstance {
   url: string | null
   expiration: number | null
 }
+
+export interface shortLinkEdit {
+  key: string
+  url: string
+  expiration: number | null
+  expirationTtl: number | null
+}

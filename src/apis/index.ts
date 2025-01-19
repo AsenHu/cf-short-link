@@ -1,6 +1,6 @@
 import request, { type Response } from '@/utils/request'
 
-import type { shortLinkAdd } from '@/types'
+import type { shortLinkAdd, shortLinkEdit } from '@/types'
 
 export const addShortLink = (data: shortLinkAdd) => {
   return request.post<
@@ -26,4 +26,8 @@ export const getLink = () => {
       }[]
     }>
   >('/list?all=true')
+}
+
+export const updateLink = (data: shortLinkEdit) => {
+  return request.post<Response>('/update', data)
 }
