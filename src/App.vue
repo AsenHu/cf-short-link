@@ -4,13 +4,14 @@ import router from './router'
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons-vue'
 
 import { useNavStore } from '@/stores/nav'
+import { isPhone } from '@/utils/screen'
 
 defineOptions({
   name: 'AppComponent',
 })
 
 const selectedKeys = ref<string[]>()
-const collapsed = ref<boolean>(false)
+const collapsed = ref<boolean>(isPhone())
 const navStore = useNavStore()
 
 onMounted(() => {
@@ -28,7 +29,10 @@ onMounted(() => {
   <a-layout class="layout">
     <a-layout-sider v-model:collapsed="collapsed" :trigger="null" collapsible>
       <div class="logo">
-        <h1>CF Short Link</h1>
+        <router-link to="/">
+          <h1 v-show="!collapsed">CF Short Link</h1>
+          <h1 v-show="collapsed">CSL</h1>
+        </router-link>
       </div>
       <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
         <a-menu-item
@@ -91,6 +95,14 @@ onMounted(() => {
     h1 {
       vertical-align: middle;
       margin: 0;
+    }
+
+    a {
+      color: #fff;
+
+      &:hover {
+        color: #fff;
+      }
     }
   }
 }

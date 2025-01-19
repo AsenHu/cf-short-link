@@ -45,8 +45,11 @@ onMounted(() => {
           onChange: handleChangePage,
         }"
       >
+        <!-- eslint-disable-next-line vue/no-unused-vars -->
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'action'"> {{ record }} </template>
+          <template v-if="column.key === 'action'">
+            <a-button type="link">Details</a-button>
+          </template>
         </template>
       </a-table>
     </div>
