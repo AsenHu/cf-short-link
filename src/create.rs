@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::{
-    request::send_request,
-    response::{handle_response, CreateData},
+    request::{send_request, RequestMethod::Create},
+    response::{handle_response, CreateData, Response},
 };
 
 #[skip_serializing_none]
@@ -39,8 +39,8 @@ pub(crate) fn create(
         expiration,
         expiration_ttl,
     };
-    let response = send_request::<CreateData>(
-        "create",
+    let response: Response<CreateData> = send_request(
+        Create,
         &endpoint,
         Some(&token),
         Some(&serde_json::to_string(&body_struct)?),

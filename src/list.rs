@@ -5,8 +5,8 @@ use chrono::DateTime;
 use minus::Pager;
 
 use crate::{
-    request::send_request,
-    response::{handle_response, ListData},
+    request::{send_request, RequestMethod::List},
+    response::{handle_response, ListData, Response},
 };
 
 pub(crate) fn list(
@@ -15,8 +15,8 @@ pub(crate) fn list(
     query: Option<Box<str>>,
     cursor: Option<Box<str>>,
 ) -> Result<()> {
-    let response = send_request::<ListData>(
-        "list",
+    let response: Response<ListData> = send_request(
+        List,
         &endpoint,
         Some(&token),
         None,
