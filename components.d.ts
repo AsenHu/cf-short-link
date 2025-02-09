@@ -26,7 +26,9 @@ declare module 'vue' {
     ATable: typeof import('ant-design-vue/es')['Table']
     ATimePicker: typeof import('ant-design-vue/es')['TimePicker']
     ATypographyParagraph: typeof import('ant-design-vue/es')['TypographyParagraph']
+    copy: typeof import('./src/components/fc/CreateLinkDialog copy.vue')['default']
     CreateLinkDialog: typeof import('./src/components/fc/CreateLinkDialog.vue')['default']
+    EditLinkDialog: typeof import('./src/components/fc/EditLinkDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

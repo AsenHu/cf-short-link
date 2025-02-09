@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useCreateLinkDialog } from '@/components/fc/index'
+import { useCreateLinkDialog, useUpdateLinkDialog } from '@/components/fc/index'
 import { useManage } from '@/hooks/useManage'
 
 defineOptions({
@@ -50,7 +50,18 @@ onMounted(() => {
                 <!-- eslint-disable-next-line vue/no-unused-vars -->
                 <template #bodyCell="{ column, record }">
                     <template v-if="column.key === 'action'">
-                        <a-button type="link">Details</a-button>
+                        <a-button
+                            type="link"
+                            @click="
+                                useUpdateLinkDialog(
+                                    record.key,
+                                    record.url,
+                                    record.expiration
+                                )
+                            "
+                        >
+                            Details
+                        </a-button>
                     </template>
                 </template>
             </a-table>
