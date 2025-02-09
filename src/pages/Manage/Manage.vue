@@ -7,7 +7,8 @@ defineOptions({
     name: 'ManagePage'
 })
 
-const { getLinkList, linkList, columns, currentPage, pageSize, total } = useManage()
+const { getLinkList, linkList, columns, currentPage, pageSize, total, searchTerm } =
+    useManage()
 
 const handleCreateLink = async () => {
     await useCreateLinkDialog()
@@ -31,7 +32,7 @@ onMounted(() => {
         </div>
 
         <div class="search">
-            <a-input placeholder="Filter" />
+            <a-input placeholder="Filter" v-model:value="searchTerm" />
         </div>
 
         <div class="table">
