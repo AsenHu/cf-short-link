@@ -1,7 +1,10 @@
-<!-- eslint-disable vue/no-reserved-props -->
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
-import { updateLink, getFullLink } from '@/apis/index'
+import {
+  updateLink,
+  getFullLink,
+  deleteLink as deleteLinkApi,
+} from '@/apis/index'
 import { message, Modal } from 'ant-design-vue'
 import type { shortLinkEdit } from '@/types/index'
 import type { Dayjs } from 'dayjs'
@@ -48,6 +51,16 @@ const formState = reactive<shortLinkEdit>({
   expiration: props.expiration,
   short: props.short,
 })
+
+const deleteLink = async () => {
+  const { data: result } = await deleteLinkApi(formState.short)
+  if (result.ok !== true) return message.error('Failed to delete link')
+  Modal.success({
+    title: 'Success',
+    content: 'Link deleted successfully',
+    onOk: handleDialogClose,
+  })
+}
 
 const onFinish = async () => {
   if (!formState.url) return message.error('URL is required')
@@ -124,7 +137,17 @@ onMounted(async () => {
       </a-form-item>
 
       <a-form-item :wrapper-col="{ offset: 5, span: 16 }">
-        <a-button type="primary" html-type="submit">Submit</a-button>
+        <a-space>
+          <a-button type="primary" html-type="submit">Submit</a-button>
+          <a-popconfirm
+            title="Are you sure delete this link?"
+            ok-text="Yes"
+            cancel-text="No"
+            @confirm="deleteLink"
+          >
+            <a-button type="primary" danger ghost>Delete</a-button>
+          </a-popconfirm>
+        </a-space>
       </a-form-item>
     </a-form>
   </a-modal>
