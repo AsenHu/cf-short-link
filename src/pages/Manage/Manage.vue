@@ -1,57 +1,87 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useCreateLinkDialog } from '@/components/fc/index'
+import { useCreateLinkDialog, useUpdateLinkDialog } from '@/components/fc/index'
 import { useManage } from '@/hooks/useManage'
 
 defineOptions({
-  name: 'ManagePage',
+    name: 'ManagePage'
 })
 
-const { getLinkList, linkList, columns } = useManage()
+const { getLinkList, linkList, columns, currentPage, pageSize, total, searchTerm } =
+    useManage()
 
 const handleCreateLink = async () => {
-  await useCreateLinkDialog()
-  getLinkList()
+    await useCreateLinkDialog()
+    getLinkList()
+}
+
+const handleChangePage = (page: number, pageSizeValue: number) => {
+    currentPage.value = page
+    pageSize.value = pageSizeValue
 }
 
 onMounted(() => {
-  getLinkList()
+    getLinkList()
 })
 </script>
 
 <template>
-  <div class="manage">
-    <div class="create">
-      <a-card title="Create" style="width: 300px">
-        <!-- <template #extra><a href="#">more</a></template> -->
-        <p>Create a short link.</p>
-        <p>Shorten a URL.</p>
-        <a-button type="primary" @click="handleCreateLink"> Create </a-button>
-      </a-card>
-    </div>
+    <div class="manage">
+        <div class="create">
+            <a-button type="primary" @click="handleCreateLink"> Create a link </a-button>
+        </div>
 
-    <div class="table">
-      <a-table
-        :dataSource="linkList"
-        :columns="columns"
-        :pagination="{
-          pageSize: 10,
-          showSizeChanger: true,
-        }"
-      />
+        <div class="search">
+            <a-input placeholder="Filter" v-model:value="searchTerm" />
+        </div>
+
+        <div class="table">
+            <a-table
+                :dataSource="linkList"
+                :columns="columns"
+                :pagination="{
+                    current: currentPage,
+                    pageSize: pageSize,
+                    total: total,
+                    showSizeChanger: true,
+                    onChange: handleChangePage
+                }"
+            >
+                <!-- eslint-disable-next-line vue/no-unused-vars -->
+                <template #bodyCell="{ column, record }">
+                    <template v-if="column.key === 'action'">
+                        <a-button
+                            type="link"
+                            @click="
+                                useUpdateLinkDialog(
+                                    record.key,
+                                    record.url,
+                                    record.expiration
+                                )
+                            "
+                        >
+                            Details
+                        </a-button>
+                    </template>
+                </template>
+            </a-table>
+        </div>
     </div>
-  </div>
 </template>
 
 <style scoped lang="less">
 .manage {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 
-  .table {
-    margin-top: 20px;
-    max-width: 100%;
-    height: 300px;
-  }
+    .search {
+        margin-top: 20px;
+    }
+
+    .table {
+        margin-top: 20px;
+        max-width: 100%;
+        height: 300px;
+    }
 }
 </style>

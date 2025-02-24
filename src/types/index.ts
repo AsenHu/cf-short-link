@@ -1,11 +1,11 @@
 export interface shortLinkAdd {
-  url: string
-  length?: number
-  number?: boolean
-  capital?: boolean
-  lowercase?: boolean
-  expiration?: number | null
-  expirationTtl?: number | null
+    url: string
+    length?: number
+    number?: boolean
+    capital?: boolean
+    lowercase?: boolean
+    expiration?: number | null
+    expirationTtl?: number | null
 }
 
 // url	string	必填：需要缩短的长链接	无
@@ -17,9 +17,16 @@ export interface shortLinkAdd {
 // expirationTtl	number	可选：链接的存活时间（秒）	无
 
 export interface shortLinkInstance {
-  key: string
-  noHttps: string
-  full: string
-  url: string | null
-  expiration: number | null
+    key: string
+    noHttps: string
+    full: string
+    url: string | null
+    expiration: number | null
+}
+
+export interface shortLinkEdit {
+    short: string
+    url: string
+    expiration: number | null
+    // expirationTtl: number | null
 }
