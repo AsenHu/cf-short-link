@@ -61,6 +61,10 @@ const onRequestPost = async (context: { request: Request, env: Env }) => {
     if (data.expirationTtl && data.expirationTtl < 60) {
         return genResponse({ ok: false, msg: "expirationTtl must be at least 60 seconds" }, 400);
     }
+    // 检查 expirationTtl 是否超过安全精度范围上限
+    if (data.expirationTtl && data.expirationTtl > Number.MAX_SAFE_INTEGER) {
+        return genResponse({ ok: false, msg: "expirationTtl must be at most " + Number.MAX_SAFE_INTEGER + " seconds" }, 400);
+    }
     // 检查 length 是否大于 512
     if (data.length > 512) {
         return genResponse({ ok: false, msg: "length must be less than 512" }, 400);
