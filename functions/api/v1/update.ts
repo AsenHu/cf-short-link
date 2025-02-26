@@ -43,6 +43,10 @@ const onRequestPut = async (context: { request: Request, env: Env }) => {
     if (data.expiration && data.expiration < Math.floor(Date.now() / 1000)) {
         return genResponse({ ok: false, msg: "expiration must be greater than the current time" }, 400);
     }
+    // 检查 expiration 是否超过安全精度范围上限
+    if (data.expiration && data.expiration > Number.MAX_SAFE_INTEGER) {
+        return genResponse({ ok: false, msg: "expirationTtl must be at most " + Number.MAX_SAFE_INTEGER + " seconds" }, 400);
+    }
     // 设置默认值
     if (!data.expiration && !data.expirationTtl) {
         data.expirationTtl = 2592000; // 30 天
