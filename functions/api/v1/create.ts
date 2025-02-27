@@ -53,6 +53,10 @@ const onRequestPost = async (context: { request: Request, env: Env }) => {
     if (data.expiration && data.expiration < Math.floor(Date.now() / 1000)) {
         return genResponse({ ok: false, msg: "expiration must be greater than the current time" }, 400);
     }
+    // 检查 expiration 是否超过安全精度范围上限
+    if (data.expiration && (data.expirationTtl < -2147483648 || data.expirationTtl > 2147483647)) {
+        return genResponse({ ok: false, msg: "expiration must be between -2147483648 and 2147483647 (inclusive)" }, 400);
+    }
     // 设置默认值
     if (!data.expiration && !data.expirationTtl) {
         data.expirationTtl = 2592000; // 30 天
@@ -60,6 +64,10 @@ const onRequestPost = async (context: { request: Request, env: Env }) => {
     // 检查 expirationTtl 是否小于 60
     if (data.expirationTtl && data.expirationTtl < 60) {
         return genResponse({ ok: false, msg: "expirationTtl must be at least 60 seconds" }, 400);
+    }
+    // 检查 expirationTtl 是否超过安全精度范围上限
+    if (data.expirationTtl && (data.expirationTtl < -2147483648 || data.expirationTtl > 2147483647)) {
+        return genResponse({ ok: false, msg: "expirationTtl must be between -2147483648 and 2147483647 (inclusive)" }, 400);
     }
     // 检查 length 是否大于 512
     if (data.length > 512) {
