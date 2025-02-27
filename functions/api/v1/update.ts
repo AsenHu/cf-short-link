@@ -44,7 +44,7 @@ const onRequestPut = async (context: { request: Request, env: Env }) => {
         return genResponse({ ok: false, msg: "expiration must be greater than the current time" }, 400);
     }
     // 检查 expiration 是否超过安全精度范围上限
-    if (data.expiration && (data.expirationTtl < -2147483648 || data.expirationTtl > 2147483647)) {
+    if (data.expiration && (data.expiration < -2147483648 || data.expiration > 2147483647)) {
         return genResponse({ ok: false, msg: "expiration must be between -2147483648 and 2147483647 (inclusive)" }, 400);
     }
     // 设置默认值
